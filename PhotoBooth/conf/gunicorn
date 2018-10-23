@@ -1,0 +1,25 @@
+#!/bin/bash
+
+NAME="PhotoBooth"
+DJANGODIR=/opt/PhotoBooth
+NUM_WORKERS=3
+TIMEOUT=9600
+DJANGO_SETTINGS_MODULE=PhotoBooth.settings
+DJANGO_WSGI_MODULE=PhotoBooth.wsgi
+
+echo "Starting $NAME as `whoami`"
+
+cd $DJANGODIR
+source /opt/PhotoBooth/.venv/bin/activate
+export DJANGO_SETTINGS_MODULE=$DJANGO_SETTINGS_MODULE
+export PYTHONPATH=$DJANGODIR:$PYTHONPATH
+
+exec gunicorn ${DJANGO_WSGI_MODULE}:application \
+  --name $NAME \
+  --workers $NUM_WORKERS \
+  --worker-class gevent \
+  --timeout $TIMEOUT \
+  --log-level=debug \
+  --bind 127.0.0.1:8000 \
+  --log-file=-
+  
